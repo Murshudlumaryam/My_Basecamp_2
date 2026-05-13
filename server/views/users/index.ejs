@@ -1,0 +1,62 @@
+<%- include('../partials/header') %>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="fw-bold mb-0">All users</h2>
+</div>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead style="background:#f8fafc;">
+        <tr>
+          <th class="px-4 py-3">Name</th>
+          <th class="py-3">Email</th>
+          <th class="py-3">Role</th>
+          <th class="py-3">Joined</th>
+          <% if (locals.currentUser && currentUser.role === 'admin') { %>
+            <th class="py-3">Actions</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach(u => { %>
+          <tr>
+            <td class="px-4 py-3">
+              <div class="d-flex align-items-center gap-2">
+                <a href="/users/<%= u.id %>" class="fw-semibold text-decoration-none text-dark"><%= u.name %></a>
+                <% if (u.id === currentUser.id) { %>
+                  <span class="badge bg-light text-muted" style="font-size:0.65rem;">you</span>
+                <% } %>
+              </div>
+            </td>
+            <td class="py-3 text-muted"><%= u.email %></td>
+            <td class="py-3">
+              <% if (u.role === 'admin') { %>
+                <span class="badge-admin">Admin</span>
+              <% } else { %>
+                <span class="small-note">user</span>
+              <% } %>
+            </td>
+            <td class="py-3 text-muted"><%= new Date(u.createdAt).toLocaleDateString() %></td>
+            <% if (locals.currentUser && currentUser.role === 'admin') { %>
+              <td class="py-3">
+                <% if (u.role !== 'admin') { %>
+                  <form method="POST" action="/users/<%= u.id %>/admin" class="d-inline"
+                    onsubmit="return confirm('Make <%= u.name %> an admin?')">
+                    <button class="btn btn-sm btn-outline-secondary">Make admin</button>
+                  </form>
+                <% } else if (u.id !== currentUser.id) { %>
+                  <form method="POST" action="/users/<%= u.id %>/remove-admin" class="d-inline"
+                    onsubmit="return confirm('Remove admin from <%= u.name %>?')">
+                    <button class="btn btn-sm btn-outline-secondary">Remove admin</button>
+                  </form>
+                <% } else { %>
+                  <span class="text-muted" style="font-size:0.8rem;">You</span>
+                <% } %>
+              </td>
+            <% } %>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<%- include('../partials/footer') %>

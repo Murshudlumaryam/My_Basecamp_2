@@ -1,0 +1,29 @@
+<%- include('../partials/header') %>
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card p-4 mt-3">
+      <h2 class="fw-bold mb-1">Create account</h2>
+      <p class="text-muted mb-4">Fill the form below to register.</p>
+      <% if (locals.error && error) { %>
+        <div class="alert alert-danger"><%= error %></div>
+      <% } %>
+      <form method="POST" action="/users">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Name</label>
+          <input class="form-control" name="name" placeholder="Jane Doe" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Email</label>
+          <input class="form-control" name="email" type="email" placeholder="jane@example.com" required />
+        </div>
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Password</label>
+          <input class="form-control" name="password" type="password" placeholder="Minimum 6 characters" required minlength="6" />
+        </div>
+        <button class="btn btn-bc w-100">Register</button>
+      </form>
+      <p class="text-center text-muted mt-3 mb-0">Already registered? <a href="/session/login">Login</a></p>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

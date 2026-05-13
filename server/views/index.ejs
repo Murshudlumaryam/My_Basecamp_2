@@ -1,0 +1,61 @@
+<%- include('partials/header') %>
+<% if (!locals.currentUser) { %>
+  <div class="row justify-content-center py-4">
+    <div class="col-lg-8">
+      <div class="card p-4">
+        <h1 class="page-title">MyBasecamp</h1>
+        <p class="text-muted mb-3">
+          This is a simple project management app for creating users, logging in, and managing projects.
+        </p>
+        <div class="d-flex gap-2">
+          <a href="/users/new" class="btn btn-bc">Create account</a>
+          <a href="/session/login" class="btn btn-outline-secondary">Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="simple-box h-100">
+        <h5>User accounts</h5>
+        <p class="small-note mb-0">Users can register, log in, and remove their own account.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="simple-box h-100">
+        <h5>Projects</h5>
+        <p class="small-note mb-0">Logged in users can create, edit, view, and delete their projects.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="simple-box h-100">
+        <h5>Admin role</h5>
+        <p class="small-note mb-0">An admin can see all users and change admin permissions.</p>
+      </div>
+    </div>
+  </div>
+<% } else { %>
+  <h2 class="page-title">Hello, <%= currentUser.name %></h2>
+  <p class="text-muted">You are logged in.</p>
+  <div class="row g-3 mt-2">
+    <div class="col-md-4">
+      <a href="/projects" class="card p-4 text-decoration-none text-dark d-block">
+        <h5 class="mb-2">Projects</h5>
+        <p class="text-muted mb-0">Open your project list.</p>
+      </a>
+    </div>
+    <div class="col-md-4">
+      <a href="/projects/new" class="card p-4 text-decoration-none text-dark d-block">
+        <h5 class="mb-2">New project</h5>
+        <p class="text-muted mb-0">Create a new project.</p>
+      </a>
+    </div>
+    <div class="col-md-4">
+      <a href="/users/<%= currentUser.id %>" class="card p-4 text-decoration-none text-dark d-block">
+        <h5 class="mb-2">My profile</h5>
+        <p class="text-muted mb-0">View your account information.</p>
+      </a>
+    </div>
+  </div>
+<% } %>
+<%- include('partials/footer') %>

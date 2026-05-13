@@ -1,0 +1,79 @@
+<%- include('../partials/header') %>
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+    <div class="card p-4">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <h2 class="mb-1"><%= thread.title %></h2>
+          <p class="text-muted mb-1">
+            Project: <a href="/projects/<%= project.id %>"><%= project.name %></a>
+          </p>
+          <p class="small text-muted mb-0">
+            Created by <%= threadAuthor ? threadAuthor.name : 'Unknown user' %> -
+            <%= new Date(thread.createdAt).toLocaleDateString() %>
+          </p>
+        </div>
+        <% if (currentUser && (currentUser.id === project.owner || currentUser.role === 'admin')) { %>
+          <div class="d-flex gap-2">
+            <a href="/projects/<%= project.id %>/threads/<%= thread.id %>/edit" class="btn btn-sm btn-outline-secondary">Edit thread</a>
+            <form method="POST" action="/projects/<%= project.id %>/threads/<%= thread.id %>/delete">
+              <button class="btn btn-sm btn-outline-danger" type="submit">Delete thread</button>
+            </form>
+          </div>
+        <% } %>
+      </div>
+      <% if (thread.body) { %>
+        <div class="muted-box mb-4">
+          <%= thread.body %>
+        </div>
+      <% } %>
+      <h4 class="mb-3">Messages</h4>
+      <% if (error) { %>
+        <div class="alert alert-danger"><%= error %></div>
+      <% } %>
+      <form method="POST" action="/projects/<%= project.id %>/threads/<%= thread.id %>/messages" class="mb-4">
+        <label class="form-label">New message</label>
+        <textarea class="form-control mb-2" name="body" rows="3" required></textarea>
+        <button class="btn btn-bc" type="submit">Post message</button>
+      </form>
+      <% if (messages.length === 0) { %>
+        <p class="text-muted mb-0">No messages.</p>
+      <% } else { %>
+        <div class="d-grid gap-3">
+          <% messages.forEach((message) => { %>
+            <div class="card p-3">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <div class="fw-semibold"><%= usersById[message.userId] ? usersById[message.userId].name : 'Unknown user' %></div>
+                  <div class="small text-muted"><%= new Date(message.createdAt).toLocaleString() %></div>
+                </div>
+                <% if (message.userId === currentUser.id || currentUser.id === project.owner || currentUser.role === 'admin') { %>
+                  <div class="d-flex gap-2">
+                    <% if (message.userId === currentUser.id) { %>
+                      <a href="/projects/<%= project.id %>/threads/<%= thread.id %>?editMessageId=<%= message.id %>" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    <% } %>
+                    <form method="POST" action="/projects/<%= project.id %>/threads/<%= thread.id %>/messages/<%= message.id %>/delete">
+                      <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                    </form>
+                  </div>
+                <% } %>
+              </div>
+              <% if (editMessageId === message.id || String(editMessageId) === String(message.id)) { %>
+                <form method="POST" action="/projects/<%= project.id %>/threads/<%= thread.id %>/messages/<%= message.id %>">
+                  <textarea class="form-control mb-2" name="body" rows="3" required><%= message.body %></textarea>
+                  <button class="btn btn-bc btn-sm" type="submit">Save</button>
+                </form>
+              <% } else { %>
+                <p class="mb-0"><%= message.body %></p>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+      <div class="mt-4">
+        <a href="/projects/<%= project.id %>" class="btn btn-outline-secondary">Back to project</a>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

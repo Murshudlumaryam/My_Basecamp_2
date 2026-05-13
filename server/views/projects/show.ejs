@@ -1,0 +1,181 @@
+<%- include('../partials/header') %>
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card p-4">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h2 class="fw-bold mb-1"><%= project.name %></h2>
+          <p class="text-muted"><%= project.description || 'No description.' %></p>
+        </div>
+        <% if (locals.currentUser && (currentUser.id === project.owner || currentUser.role === 'admin')) { %>
+          <div class="d-flex gap-2">
+            <a href="/projects/<%= project.id %>/edit" class="btn btn-sm btn-outline-secondary">Edit</a>
+            <form method="POST" action="/projects/<%= project.id %>/delete"
+              onsubmit="return confirm('Delete this project?')">
+              <button class="btn btn-sm btn-outline-danger">Delete</button>
+            </form>
+          </div>
+        <% } %>
+      </div>
+      <hr>
+      <div class="row g-3 mt-1">
+        <div class="col-sm-6">
+          <div class="muted-box">
+            <small class="text-muted d-block mb-1">Owner</small>
+            <p class="mb-0 fw-semibold"><%= project.owner === currentUser.id ? currentUser.name : 'Project owner' %></p>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="muted-box">
+            <small class="text-muted d-block mb-1">Created</small>
+            <p class="mb-0 fw-semibold"><%= new Date(project.createdAt).toLocaleDateString() %></p>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <a href="/projects" class="btn btn-outline-secondary">Back to projects</a>
+      </div>
+    </div>
+    <div class="card p-4 mt-3">
+      <h4 class="mb-3">Attachments</h4>
+      <% if (canParticipate) { %>
+        <form method="POST" action="/projects/<%= project.id %>/attachments" enctype="multipart/form-data" class="mb-3">
+          <div class="row g-2">
+            <div class="col-md-8">
+              <input class="form-control" type="file" name="attachment" required />
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-bc w-100" type="submit">Upload</button>
+            </div>
+          </div>
+        </form>
+      <% } %>
+      <% if (attachments.length === 0) { %>
+        <p class="text-muted mb-0">No attachments.</p>
+      <% } else { %>
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Format</th>
+                <th>Size</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% attachments.forEach((attachment) => { %>
+                <tr>
+                  <td>
+                    <a href="/uploads/<%= attachment.storedName %>" target="_blank"><%= attachment.originalName %></a>
+                  </td>
+                  <td><%= attachment.format %></td>
+                  <td><%= Math.ceil(attachment.size / 1024) %> KB</td>
+                  <td class="text-end">
+                    <% if (attachment.userId === currentUser.id || canManageProject) { %>
+                      <form method="POST" action="/projects/<%= project.id %>/attachments/<%= attachment.id %>/delete" class="d-inline">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                      </form>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+    <div class="card p-4 mt-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Threads</h4>
+      </div>
+      <% if (canCreateThread) { %>
+        <% if (threadError) { %>
+          <div class="alert alert-danger"><%= threadError %></div>
+        <% } %>
+        <form method="POST" action="/projects/<%= project.id %>/threads" class="mb-4">
+          <div class="mb-2">
+            <label class="form-label fw-semibold">Title</label>
+            <input class="form-control" type="text" name="title" required />
+          </div>
+          <div class="mb-2">
+            <label class="form-label fw-semibold">Description</label>
+            <textarea class="form-control" name="body" rows="3"></textarea>
+          </div>
+          <button class="btn btn-bc" type="submit">Create thread</button>
+        </form>
+      <% } %>
+
+      <% if (threads.length === 0) { %>
+        <p class="text-muted mb-0">No threads yet.</p>
+      <% } else { %>
+        <div class="list-group">
+          <% threads.forEach((thread) => { %>
+            <a href="/projects/<%= project.id %>/threads/<%= thread.id %>" class="list-group-item list-group-item-action">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <div class="fw-semibold"><%= thread.title %></div>
+                  <small class="text-muted">
+                    By <%= threadAuthorsById[thread.userId] ? threadAuthorsById[thread.userId].name : 'Unknown user' %>
+                  </small>
+                </div>
+                <small class="text-muted"><%= new Date(thread.createdAt).toLocaleDateString() %></small>
+              </div>
+              <% if (thread.body) { %>
+                <p class="text-muted mb-0 mt-2"><%= thread.body %></p>
+              <% } %>
+            </a>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card p-4">
+      <h4 class="mb-3">Members</h4>
+      <% if (memberError) { %>
+        <div class="alert alert-danger"><%= memberError %></div>
+      <% } %>
+      <% if (members.length === 0) { %>
+        <p class="text-muted mb-0">No members.</p>
+      <% } else { %>
+        <div class="d-grid gap-2">
+          <% members.forEach((member) => { %>
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+              <div>
+                <div class="fw-semibold"><%= member.name %></div>
+                <small class="text-muted"><%= member.email %></small>
+                <% if (member.id === project.owner) { %>
+                  <span class="badge-admin ms-1">Owner</span>
+                <% } %>
+              </div>
+              <% if (canManageProject && member.id !== project.owner) { %>
+                <form method="POST" action="/projects/<%= project.id %>/members/<%= member.id %>/delete" class="mb-0">
+                  <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                </form>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+
+      <% if (canManageProject) { %>
+        <hr>
+        <form method="POST" action="/projects/<%= project.id %>/members">
+          <label class="form-label fw-semibold">Add member</label>
+          <div class="d-flex gap-2">
+            <select class="form-select" name="userId" required>
+              <option value="">Select user</option>
+              <% availableUsers.forEach((user) => { %>
+                <option value="<%= user.id %>"><%= user.name %> (<%= user.email %>)</option>
+              <% }) %>
+            </select>
+            <button class="btn btn-bc" type="submit">Add</button>
+          </div>
+        </form>
+      <% } %>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

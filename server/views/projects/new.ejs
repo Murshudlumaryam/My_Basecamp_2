@@ -1,0 +1,27 @@
+<%- include('../partials/header') %>
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card p-4 mt-3">
+      <h2 class="fw-bold mb-1">New project</h2>
+      <p class="text-muted mb-4">Add a name and optional description.</p>
+      <% if (locals.error && error) { %>
+        <div class="alert alert-danger"><%= error %></div>
+      <% } %>
+      <form method="POST" action="/projects">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Project name <span class="text-danger">*</span></label>
+          <input class="form-control" name="name" placeholder="Website redesign" required value="<%= formData.name %>" />
+        </div>
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Description</label>
+          <textarea class="form-control" name="description" rows="4" placeholder="Short description"><%= formData.description %></textarea>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-bc">Create</button>
+          <a href="/projects" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

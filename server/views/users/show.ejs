@@ -1,0 +1,58 @@
+<%- include('../partials/header') %>
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card p-4 mt-3">
+      <div class="mb-4">
+        <h3 class="mb-1 fw-bold"><%= user.name %></h3>
+        <p class="text-muted mb-1"><%= user.email %></p>
+        <% if (user.role === 'admin') { %>
+          <span class="badge-admin">Admin</span>
+        <% } else { %>
+          <span class="small-note">Role: user</span>
+        <% } %>
+      </div>
+      <hr>
+      <%
+        const isAdmin = locals.currentUser && currentUser.role === 'admin';
+        const isOwnProfile = locals.currentUser && currentUser.id === user.id;
+        const canDemote = isAdmin && !isOwnProfile && user.role === 'admin';
+        const canPromote = isAdmin && user.role !== 'admin';
+      %>
+      <% if (isAdmin) { %>
+        <div class="mb-3">
+          <h6 class="text-muted mb-2">Role management</h6>
+          <% if (canPromote) { %>
+            <form method="POST" action="/users/<%= user.id %>/admin" class="d-inline"
+              onsubmit="return confirm('Make <%= user.name %> an admin?')">
+              <button class="btn btn-sm btn-outline-secondary">Make admin</button>
+            </form>
+          <% } else if (canDemote) { %>
+            <form method="POST" action="/users/<%= user.id %>/remove-admin" class="d-inline"
+              onsubmit="return confirm('Remove admin role from <%= user.name %>?')">
+              <button class="btn btn-sm btn-outline-secondary">Remove admin</button>
+            </form>
+          <% } else if (isOwnProfile && user.role === 'admin') { %>
+            <p class="text-muted mb-0" style="font-size:0.85rem;">You cannot remove your own admin role.</p>
+          <% } %>
+        </div>
+      <% } %>
+      <% if (isOwnProfile) { %>
+        <div class="mt-2">
+          <h6 class="text-muted mb-2">Account</h6>
+          <form method="POST" action="/users/<%= user.id %>/delete"
+            onsubmit="return confirm('Delete your account permanently?')">
+            <button class="btn btn-sm btn-outline-danger">Delete my account</button>
+          </form>
+        </div>
+      <% } %>
+      <div class="mt-4 d-flex gap-2">
+        <a href="/projects" class="btn btn-bc">Projects</a>
+        <% if (isAdmin) { %>
+          <a href="/users" class="btn btn-outline-secondary">All users</a>
+        <% } %>
+        <a href="/" class="btn btn-outline-secondary">Home</a>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>
