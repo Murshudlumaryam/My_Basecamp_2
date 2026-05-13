@@ -4,7 +4,7 @@ My Basecamp 2 is a project collaboration web application built with Node.js, Exp
 
 ## Live Demo
 
-Deployment URL: add your hosted application link here after deployment.
+Deployment URL: https://mybasecamp2.vercel.app
 
 ## Features
 
