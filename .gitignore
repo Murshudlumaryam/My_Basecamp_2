@@ -3,3 +3,5 @@ uploads/
 db/database.sqlite
 .vercel/
 *.log
+
+.vercel
